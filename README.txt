@@ -1,4 +1,5 @@
-﻿INTERPOLATOR
+﻿INTERPOLATOR - A serie interpolator using Python
+Copyright (C) 2012  Pierre Gradot
 
 
 Présentation :
@@ -10,6 +11,7 @@ Utilisation :
 
 Le programme utilise Python 2.7 et  PyQt4. Il se lance grâce au script main.pyw, après avoir généré le fichier interpolation_ui.py à l'aide pyuic et du fichier interpolation.ui. Le fichier pyuic_call.bat permet de générer ce fichier.
 
+Pour l'instant, seul Windows XP a été testé.
 
 
 Formatage du fichier Excel :

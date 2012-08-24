@@ -1,6 +1,6 @@
 '''
 INTERPOLATOR - A serie interpolator using Python
-Copyright (2) 2012  Pierre Gradot
+Copyright (C) 2012  Pierre Gradot
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
