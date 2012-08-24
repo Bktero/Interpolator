@@ -55,15 +55,14 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
             if ok==False:
                 # Demander un fichier a l'utilisateur
                 self.doubleSpinBoxValeur.setEnabled(False)
-                '''
+                
                 msgBox = QtGui.QMessageBox()
-                print msgBox, type(msgBox)
-                msgbox.setText("Aucun fichier sélectionné !")
+                msgBox.setWindowTitle("Aucun fichier sélectionné")
+                msgBox.setText("Aucun fichier sélectionné !")
                 msgBox.setInformativeText("Il faut sélectionner un fichier pour utiliser le programme.")
-                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
                 ret = msgBox.exec_()
-                '''
-                QtGui.QMessageBox.information (self, "Aucun fichier sélectionné !", "Il faut sélectionner un fichier pour utiliser le programme.")
+                #QtGui.QMessageBox.information (self, "Aucun fichier sélectionné !", "Il faut sélectionner un fichier pour utiliser le programme.")
     
     
     def main(self):
