@@ -28,6 +28,9 @@ import os
 from PyQt4 import QtGui, QtCore
 from interpolation_ui import Ui_Interpolation
 
+import numpy
+import pylab
+
 
 class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
     def __init__(self, parent=None):
@@ -35,20 +38,24 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
         self.setupUi(self)
         self.connectSignals()
         self.scriptpath = os.path.dirname( sys.argv[0] )
+        #self.method = "linear" #defaut value
   
+        print "1"
         # Chargement des series
         if os.path.exists( self.scriptpath + r"\\data.file" ) == True :
             # Utilisation du fichier par defaut
             f = open(  self.scriptpath + r'\\data.file', 'r')
             filename = f.read()
             f.close()
-            
+            print "2"
             # Recuperation de series
             self.createSeriesLoader(filename)
+            print "3"
             
             # Interpolateur par defaut et MAJ de la valeur interpolee affichee
-            self.createInterpolator(self.seriesloader.listeSeries[0], "linear")
-            self.interpolate()
+            # On simule pour cela un clic selectionnant une serie
+            self.methodWasSelected()
+            print "4"
             
         else :
             ok = self.selectAndUseFile()    
@@ -68,7 +75,9 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
     def main(self):
         self.show()
         
-        
+    
+    # METHODES POUR LA MECANIQUE INTERNE
+    
     def connectSignals(self):
         '''
         Connecte les signaux et les slots associes.
@@ -78,8 +87,14 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
         self.actionSelectionner_fichier.triggered.connect(self.selectAndUseFile)
         self.actionM_moriser_fichier.triggered.connect(self.memorizeFileName)
         
+        self.actionTracer.triggered.connect(self.plot)
+        
         # Menu deroulant
         self.comboBoxSeries.currentIndexChanged.connect(self.serieWasSelected)
+        
+        # Choix de la methode d'interpolation
+        self.radioButton_linear.clicked.connect(self.methodWasSelected)
+        self.radioButton_squares.clicked.connect(self.methodWasSelected)
         
         # Calcul d'interpolation
         self.doubleSpinBoxValeur.valueChanged.connect(self.interpolate)
@@ -115,21 +130,84 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
             del(self.interpol)
         except AttributeError :
             pass  # Pas d'objet existant, sans doute car c'est la 1ere execution de la methode
-            
+         
         if (type == "linear") & (isinstance(serie, classes.Serie)) :
-            self.interpol = classes.LinearInterpolator(serie)
+            self.interpol = classes.LinearInterpolator(serie)    
 
+        elif (type == "squares") & (isinstance(serie, classes.Serie)) :
+            self.interpol = classes.LeastSquaresInterpolator(serie)
+            
         else :
-            print "Type d'interpolateur non implementé"
+            print "Type d'interpolateur non implemente"
             self.interpol = None
      
+    
+    # METHODES / SLOTS POUR LA GESTION DES ITEMS PRINCIPAUX DE LA GUI
+
+    def methodWasSelected(self):
+        '''
+        Ce slot s'execute en reponse a la selection d'un radioButton
+        correspondant a une methode d'interpolation.
+        Il determine quelle methode a ete selectionne et appelle createInterpolator().
+        '''
+        # Determination de la methode choisie
+        if self.radioButton_linear.isChecked() == True:
+            self.method = "linear"
+        elif self.radioButton_squares.isChecked() == True:
+            self.method = "squares"
+        else:
+            self.method = "not implemented"
+            print "Methode non disponible"       
+
+        # Index de la serie selectionnee
+        index = self.comboBoxSeries.currentIndex()         
+            
+        # Creation d'un nouvel Interpolator correspondant a la methode choisie             
+        self.createInterpolator(self.seriesloader[index], self.method)
         
+        # Calcul de la valeur pour mettre a jour l'affichage
+        self.interpolate()
+        
+        
+        
+    def serieWasSelected(self, index):
+        '''
+        Slot en reponse a la selection d'une serie dans le menu deroulant (combo box).
+        Il faut cree un nouvel Interpolateur sur cette serie et mettre a jour l'affichage.      
+        'index' est l'index de l'entree selectionnee, il est transmis par le signal 'currentIndexChanged'.
+        '''
+        # Modification de l'interpolateur de la classe
+        self.createInterpolator(self.seriesloader[index], self.method)
+        
+        # MAJ de l'affichage
+        self.labelUniteValeurs.setText( self.seriesloader[index].unites["valeurs"] )
+        self.labelUniteImages.setText( self.seriesloader[index].unites["images"] )
+        self.interpolate()
+  
+
+    
+    def interpolate(self):
+        '''
+        Utilise l'interpolateur disponible pour calculer l'image de la valeur entree dans le champ dedie.
+        Affiche ensuite cette valeur.
+        '''
+        x = self.doubleSpinBoxValeur.value()
+        y = self.interpol.getImageOf(x)    
+        if y is None :
+            self.doubleSpinBoxImage.setSpecialValueText("Hors limite")
+            self.doubleSpinBoxImage.setValue( self.doubleSpinBoxImage.minimum() )
+        else :
+            self.doubleSpinBoxImage.setValue(y)
+
+
+    # METHODES / SLOTS POUR LES ENTREES DE LA BARRE DE MENU
+    
     def selectAndUseFile(self):
         '''
         Slot en reponse au clic sur l'item "Selectionner fichier" dans le menu. 
         Elle recupere un nouveau de fichier a l'aide de la boite a outils dedie.
         - Si aucun fichier n'est selectionne, elle renvoie False.
-        - Si non, elle appelle les methodes createSeriesLoader et createInterpolator() pour utiliser ce nouveau fichier.
+        - Sinon, elle appelle les methodes createSeriesLoader et createInterpolator() pour utiliser ce nouveau fichier.
           Enfin, elle renvoie True.  
         '''
         # Recuperation du nom de fichier
@@ -151,7 +229,7 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
             self.createSeriesLoader(filename)
             
             # Interpolateur par defaut et MAJ de la valeur interpolee affichee
-            self.createInterpolator(self.seriesloader.listeSeries[0], "linear")
+            self.createInterpolator(self.seriesloader.listeSeries[0], self.method)
             self.interpolate()
             self.doubleSpinBoxValeur.setEnabled(True) # au cas ou l'utilisateur a clique sur Annuler lors de la premiere selection de fichier (voir __init__())
             
@@ -171,34 +249,23 @@ class Interpolation(QtGui.QMainWindow, Ui_Interpolation):
         text += self.scriptpath + r"\data.file"
         QtGui.QMessageBox.information (self, "Fichier memorise", text)
         
+            
+    def plot(self):
+        print "plot"
+        x = self.interpol.serie.valeurs
+        y = self.interpol.serie.images
         
-    def serieWasSelected(self, index):
-        '''
-        Slot en reponse a la selection d'une serie dans le menu deroulant (combo box).
-        Il faut cree un nouvel Interpolateur sur cette serie et mettre a jour l'affichage.      
-        'index' est l'index de l'entree selectionnee, il est transmis par le signal 'currentIndexChanged'.
-        '''
-        # Modification de l'interpolateur de la classe
-        self.createInterpolator(self.seriesloader[index], "linear")
+             
+        p4 = self.interpol.p
         
-        # MAJ de l'affichage
-        self.labelUniteValeurs.setText( self.seriesloader[index].unites["valeurs"] )
-        self.labelUniteImages.setText( self.seriesloader[index].unites["images"] )
-        self.interpolate()
-  
-  
-    def interpolate(self):
-        '''
-        Utilise l'interpolateur disponible pour calculer l'image de la valeur entree dans le champ dedie.
-        Affiche ensuite cette valeur.
-        '''
-        x = self.doubleSpinBoxValeur.value()
-        y = self.interpol.getImageOf(x)    
-        if y is None :
-            self.doubleSpinBoxImage.setSpecialValueText("Hors limite")
-            self.doubleSpinBoxImage.setValue( self.doubleSpinBoxImage.minimum() )
-        else :
-            self.doubleSpinBoxImage.setValue(y)
+        xlin = numpy.linspace( x[0], x[ len(x) - 1], 50)
+        print xlin
+        
+        pylab.plot(x, y, 'o', xlin, p4(xlin),'-g')    
+        pylab.show()
+        
+        
+        print "plot ned"
 
         
 #if __name__ == "__main__" :

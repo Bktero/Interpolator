@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-INTERPOLATOR - A serie interpolator using Python
-Copyright (C) 2012  Pierre Gradot
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
 <ui version="4.0">
  <class>Interpolation</class>
  <widget class="QMainWindow" name="Interpolation">
@@ -24,8 +6,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>331</width>
-    <height>238</height>
+    <width>270</width>
+    <height>250</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
      <enum>QComboBox::AdjustToMinimumContentsLength</enum>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton">
+   <widget class="QRadioButton" name="radioButton_linear">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -76,7 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_2">
+   <widget class="QRadioButton" name="radioButton_lagrange">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -96,7 +78,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>111</y>
+      <y>121</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -118,7 +100,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>161</y>
+      <y>171</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -169,7 +151,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>120</y>
+      <y>130</y>
       <width>46</width>
       <height>13</height>
      </rect>
@@ -182,7 +164,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>170</y>
+      <y>180</y>
       <width>46</width>
       <height>13</height>
      </rect>
@@ -217,13 +199,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
      <string/>
     </property>
    </widget>
+   <widget class="QRadioButton" name="radioButton_squares">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>90</y>
+      <width>101</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Moindres carrés</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>331</width>
+     <width>270</width>
      <height>18</height>
     </rect>
    </property>
@@ -235,7 +233,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <addaction name="actionM_moriser_fichier"/>
     <addaction name="actionQuitter"/>
    </widget>
+   <widget class="QMenu" name="menuCourbe">
+    <property name="title">
+     <string>Courbe</string>
+    </property>
+    <addaction name="actionTracer"/>
+   </widget>
    <addaction name="menuMenu"/>
+   <addaction name="menuCourbe"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSelectionner_fichier">
@@ -251,6 +256,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <action name="actionM_moriser_fichier">
    <property name="text">
     <string>Mémoriser fichier</string>
+   </property>
+  </action>
+  <action name="actionTracer">
+   <property name="text">
+    <string>Tracer</string>
    </property>
   </action>
  </widget>

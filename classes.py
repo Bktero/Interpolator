@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 http://www.portailsig.org/content/python-lire-et-ecrire-des-fichiers-microsoft-excel-application-quantum-gis
 '''
 import xlrd
+import numpy
 
 
 class Serie(object):
@@ -120,11 +121,11 @@ class Interpolator(object):
     '''
     def __init__(self, serie):
         self.serie = serie
-    '''
+    
     def getImageOf(self, recherchee):
+        print "Methode virtuelle pure"
+        pass
         
-        pass'''
-        #''' Methode virtuelle pure '''
 
         
 class LinearInterpolator(Interpolator):
@@ -160,7 +161,28 @@ class LinearInterpolator(Interpolator):
             
             return p * ( x-x1 ) + y1
         
-                   
+
+
+class LeastSquaresInterpolator(Interpolator):
+    def __init__(self, serie):
+        super(LeastSquaresInterpolator, self).__init__(serie)
+               
+        # Construction du polynome magique
+        x = self.serie.valeurs
+        y = self.serie.images
+        coeff = numpy.polyfit(x, y, 10)
+        self.p = numpy.poly1d(coeff)
+        
+        # Methode decouverte avec l'article : http://glowingpython.blogspot.it/2011/07/polynomial-curve-fitting.html 
+        # Les fonctions Python reprenne celles de Matlab : http://blogs.mathworks.com/loren/2008/07/17/interpolating-polynomials/
+        
+        # Pour savoir comment trouver le degres du polynome, la discussion suivante pourrait etre utile :
+        # http://stackoverflow.com/questions/382186/fitting-polynomials-to-data
+        
+    def getImageOf(self, recherchee):
+        return self.p(recherchee)
+        
+        
 '''
 Main
 '''    

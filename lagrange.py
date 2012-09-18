@@ -32,6 +32,7 @@ xr = x[50:55]
 yr = y[50:55]
 
 p = lagrange(xr,yr)
+print p
 yip = p(x)
 
 # Affichage
